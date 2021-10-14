@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+    container_name: app-php
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www
+    networks:
+      - app-network
+  nginx:
+    image: nginx:latest
+    container_name: app-webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./webserver/nginx:/etc/nginx/conf.d
+      - ./webserver/nginx/logs:/var/log/nginx
+  db:
+    image: mysql:8
+    container_name: app-db
+    restart: unless-stopped
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: project_database
+      MYSQL_ROOT_PASSWORD: project_root_password
+      MYSQL_PASSWORD: project_password
+      MYSQL_USER: project_user
+      SERVIRCE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - app-networks
+volumes:
+  mysqldata:
+networks:
+  app-network:
+    driver: bridge
